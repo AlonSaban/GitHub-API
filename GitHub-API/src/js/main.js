@@ -9,10 +9,17 @@ footer.appendChild(repos);
 const mockRepository = [];
 element.classList.add('search-bar');
 main.appendChild(element)
+const list = document.createElement('h3');
+const listTitle = document.createElement('h2');
+listTitle.classList.add('repo-list');
+list.classList.add('repo-list');
+footer.appendChild(listTitle);
+footer.appendChild(list);
 
 search(element)
 
 getSearchResults(element)
+
 function getSearchResults(element) {
     const input = document.querySelector('input');
     element.addEventListener("submit", (e) => {
@@ -53,50 +60,39 @@ function getUserProfile(url) {
             img.src = `${data.avatar_url}`;
             name.innerHTML = ` Name : <a href="${data.html_url}" target="_blank">${data.name}</a> <br>`;
             txt.innerHTML = ` Bio : ${data.bio}  <br> <br> followers : ${data.followers} <br>  <br> Number of repository: ${data.public_repos} <br> <br> active since: ${data.created_at}`
-            getUserRepos()
-            console.log(data.repos_url);
+            const repoUrl = data.repos_url;
+            console.log(repoUrl);
+            if (repoUrl) {
+
+                getUserRepos(repoUrl)
+                list.innerHTML = '';
+            }
         });
 }
-function getUserRepos() {
-    const deposet = document.createElement('div');
-    deposet.classList.add('repo-list');
-    // repos.appendChild(deposet);
-    console.log('first stage');
-    const component = {
-        element: deposet,
-        search: async function (query) {
-            try {
-                const response = await fetch(`https://api.github.com/users/${query}/repos`)
-                console.log(response);
-                const repository = await response.json();
-                const userRepository = repository.map(repo => repo.name)
-                console.log('second stage');
-                // userRepository.forEach(element =>
-                //     console.log(element)
-                // )
-                // repos.push(data.name);
-                // console.log(repos);
-                renderRepositorys(userRepository);
-            }
-            catch (error) {
-                throw error;
-            }
-        },
-    }
-    function renderRepositorys(repos) {
-        deposet.innerHTML = ""
-        repos
-            .map(repo => getReposItemComponent(repo).element)
-            .map(element => deposet.appendChild(element));
-    }
-    renderRepositorys(mockRepository);
-    console.log(component);
-    return component;
-}
-function getReposItemComponent(repo) {
-    console.log('its in');
-    const element = document.createElement('div');
-    element.classList.add('show-repo');
-    element.innerHTML = `<h1>${repo.name}</h1>`;
-    return element;
+
+function getUserRepos(repoUrl) {
+    fetch(repoUrl)
+        .then(response => response.json())
+        .then(data => {
+            //console.log(data);
+            //console.log(data[0]);
+            //console.log(data[0].name);
+            console.log(data.name);
+
+            listTitle.innerHTML = `Repositories:`
+            data.forEach(function(data) {
+                list.innerHTML += `<li>${data.name}</li> <br> `
+                console.log(data.name);
+
+                /* 
+                for (let i = 0; i < data.length; i++) {
+                    const rangeRepo = '';
+                    rangeRepo += data[i].name;
+                    console.log(rangeRepo);
+                    list.innerHTML += ` ${data.name}`;
+                }
+                */
+            });
+
+        })
 }
